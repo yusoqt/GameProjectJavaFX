@@ -14,11 +14,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.AudioClip;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.net.URL;
+import soundmanager.SoundManager;
 
 public class MainMenu {
 	private Scene scene;
@@ -49,8 +47,19 @@ public class MainMenu {
 		storyButton.addEventHandler(ActionEvent.ACTION, new StoryButtonHandler());
 
 		exitButton.addEventHandler(ActionEvent.ACTION, e -> {
-			Platform.exit();
-			System.exit(0);
+			new Thread(() -> {
+				try {
+					SoundManager.playClickSound();
+					Thread.sleep(500);
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+
+				Platform.runLater(() -> {
+					Platform.exit();
+					System.exit(0);
+				});
+			}).start();
 		});
 
 		VBox vbox = new VBox(20, title, startButton, storyButton, exitButton);
@@ -69,7 +78,7 @@ public class MainMenu {
 		for (int i = 0; i < text.length(); i++) {
 			final int index = i;
 			timeline.getKeyFrames().add(new KeyFrame(Duration.millis(200 * i), e -> {
-				label.setText(text.substring(0, index + 1));
+				Platform.runLater(() -> label.setText(text.substring(0, index + 1)));
 			}));
 		}
 		timeline.play();
@@ -90,30 +99,14 @@ public class MainMenu {
 		button.setStyle(buttonStyle);
 		createSmoothHoverEffect(button, buttonStyle, hoverStyle);
 
-		AudioClip clickSound = loadClickSound();
-
 		button.addEventHandler(ActionEvent.ACTION, e -> {
-			if (clickSound != null) {
-				clickSound.play();
-			}
+			new Thread(() -> {
+				SoundManager.playClickSound();
+				Platform.runLater(() -> button.setDisable(false));
+			}).start();
 		});
 
 		return button;
-	}
-
-	private AudioClip loadClickSound() {
-		try {
-			URL soundURL = getClass().getClassLoader().getResource("sound/click.mp3");
-			if (soundURL != null) {
-				return new AudioClip(soundURL.toString());
-			} else {
-				System.out.println("Error: Sound file not found!");
-			}
-		} catch (Exception e) {
-			System.out.println("Error loading sound: " + e.getMessage());
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	private void createSmoothHoverEffect(Button button, String normalStyle, String hoverStyle) {
@@ -141,8 +134,11 @@ public class MainMenu {
 	private class StoryButtonHandler implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
-			StoryDetails storyDetails = new StoryDetails(primaryStage);
-			storyDetails.showStory();
+			Platform.runLater(() -> {
+				StoryDetails storyDetails = new StoryDetails(primaryStage);
+				storyDetails.showStory();
+			});
 		}
 	}
+
 }
