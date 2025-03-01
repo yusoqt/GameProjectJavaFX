@@ -3,6 +3,7 @@ package application;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ui.MainMenu;
@@ -12,6 +13,9 @@ public class MainApp extends Application {
 	public void start(Stage primaryStage) {
 		MainMenu mainMenu = new MainMenu(primaryStage);
 
+	    Image icon = new Image(ClassLoader.getSystemResource("images/IconGame.png").toString());
+	    primaryStage.getIcons().add(icon);
+		
 		primaryStage.setTitle("Song of Twelve Feathers");
 		primaryStage.setScene(mainMenu.getScene());
 		primaryStage.setResizable(false);
@@ -27,6 +31,7 @@ public class MainApp extends Application {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("You entered the game");
 		launch(args);
 	}
 } 

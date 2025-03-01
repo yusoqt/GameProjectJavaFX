@@ -29,5 +29,14 @@ public class SoundManager {
 			}
 		}).start();
 	}
+	
+	public static void LoseSound() {
+		new Thread(() -> {
+			AudioClip Sound = loadSound("lose.mp3");
+			if (Sound != null) {
+				Platform.runLater(() -> Sound.play());
+			}
+		}).start();
+	}
 
 }
