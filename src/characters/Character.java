@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import skills.Skill;
 import effects.BaseDotEffect;
-// สมมุติว่า BaseBuff และ BaseDebuff อยู่ใน package buffs และ debuffs
 import buffs.BaseBuff;
 import debuffs.BaseDebuff;
 
@@ -15,12 +14,12 @@ import debuffs.BaseDebuff;
 
 public abstract class Character {
     protected String name;
-    protected int maxHp;  // เพิ่มตัวแปรเก็บค่า HP สูงสุด
+    protected int maxHp;  
     protected int hp;
     protected int atk;
     protected int def;
     protected int spd;
-    protected int accuracy = 100; // เพิ่มค่าเริ่มต้น accuracy
+    protected int accuracy = 100; 
     protected List<Skill> skills;
     protected List<BaseDotEffect> dotEffects;
     protected List<BaseBuff> buffs;
@@ -33,7 +32,7 @@ public abstract class Character {
 
     public Character(String name, int hp, int atk, int def, int spd, int accuracy) {
         this.name = name;
-        this.maxHp = hp;  // เก็บค่า HP สูงสุด
+        this.maxHp = hp;  
         this.hp = hp;
         this.atk = atk;
         this.def = def;
@@ -70,19 +69,17 @@ public abstract class Character {
     public void setAccuracy(int accuracy) { this.accuracy = Math.max(0, Math.min(accuracy, 100)); }
     public List<Skill> getSkills() { return skills; }
     
-    // เพิ่ม method setSpd เพื่อให้สามารถปรับ speed ได้จากภายนอก
     public void setSpd(int spd) {
         this.spd = spd;
     }
     
-    // ใช้ method applyEffect เพียงตัวเดียวสำหรับทุก BaseDotEffect
     public void applyEffect(BaseDotEffect effect) {
         activeEffects.add(effect);
         effect.applyEffect(this);
     }
     
     public void addBuff(BaseBuff buff) {
-        buff.apply(this);  // this เป็น Character อยู่แล้ว
+        buff.apply(this);  
     }
     
     public void addDebuff(BaseDebuff debuff) {
@@ -90,7 +87,6 @@ public abstract class Character {
         debuff.apply(this);
     }
     
-    // เมธอด heal() และ increaseDef() ตามที่ใช้งานใน Reconstruct
     public void heal(int amount) {
         this.hp = Math.min(hp + amount, maxHp);
         System.out.println(name + " heals for " + amount + " HP.");
@@ -109,18 +105,15 @@ public abstract class Character {
         this.attack = attack;
     }
 
-    // เพิ่มเมธอดใหม่
     public int getMaxHp() {
         return maxHp;
     }
 
     public void setHp(int hp) {
-        this.hp = Math.max(0, Math.min(hp, maxHp));  // ป้องกันค่า HP ต่ำกว่า 0 หรือเกิน maxHp
+        this.hp = Math.max(0, Math.min(hp, maxHp));  
     }
     
-    // เพิ่มเมธอด recalcStats
     protected void recalcStats() {
-        // คำนวณค่าสถานะใหม่หลังจากมีการเปลี่ยนแปลง
         this.hp = this.maxHp;
     }
 
@@ -151,5 +144,24 @@ public abstract class Character {
 
     public boolean isFrozen() {
         return isFrozen;
+    }
+    
+    public boolean hasEffect(String effectName) {
+        for (BaseDotEffect effect : dotEffects) {
+            if (effect.getName().equals(effectName)) {
+                return true;
+            }
+        }
+        for (BaseBuff buff : buffs) {
+            if (buff.getName().equals(effectName)) {
+                return true;
+            }
+        }
+        for (BaseDebuff debuff : debuffs) {
+            if (debuff.getName().equals(effectName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

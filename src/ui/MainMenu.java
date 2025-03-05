@@ -25,7 +25,7 @@ public class MainMenu {
 
 	private void initialize() {
 
-		defaultBackgroundImage = new Image(ClassLoader.getSystemResource("images/MainMenu.png").toString());
+		defaultBackgroundImage = new Image(ClassLoader.getSystemResource("images/Scene/MainMenu.png").toString());
 		
 		backgroundGame = new ImageView(defaultBackgroundImage);
 		backgroundGame.setFitWidth(960);

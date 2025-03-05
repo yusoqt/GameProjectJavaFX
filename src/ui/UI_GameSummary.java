@@ -33,6 +33,7 @@ public class UI_GameSummary extends StackPane {
 	}
 
 	private void initialize() {
+		System.out.println("Game Summary");
 		backgroundImage = new ImageView();
 	    backgroundImage.setFitWidth(960);
 	    backgroundImage.setFitHeight(600);
@@ -130,11 +131,11 @@ public class UI_GameSummary extends StackPane {
 	}
 
 	public void SceneWin() {
-		backgroundImage.setImage((new Image(ClassLoader.getSystemResource("images/win.png").toString())));
+		backgroundImage.setImage((new Image(ClassLoader.getSystemResource("images/StatusGame/win.png").toString())));
 	}
 	
 	public void SceneLose() {
-		backgroundImage.setImage((new Image(ClassLoader.getSystemResource("images/lose.png").toString())));
+		backgroundImage.setImage((new Image(ClassLoader.getSystemResource("images/StatusGame/lose.png").toString())));
 	}
 	
 }

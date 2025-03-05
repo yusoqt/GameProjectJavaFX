@@ -9,6 +9,7 @@ import enemies.BaseBoss;
 import enemies.Monster;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -25,6 +26,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import skills.Skill;
+import soundmanager.SoundManager;
 import player.Player;
 import enemies.*;
 import java.util.List;
@@ -33,9 +35,11 @@ import java.util.Collections;
 import java.util.Random;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.event.EventHandler;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import java.util.stream.Collectors;
@@ -86,6 +90,11 @@ public class Game {
 	private Label enemyStatusLabel; // สำหรับแสดงสถานะของศัตรู
 	private Scene scene;
 
+	private ImageView playerImage;
+	private ImageView enemyImage = new ImageView();
+
+	private ImageView ThemeGame = new ImageView();
+
 	public Game(Stage stage, Difficulty difficulty) {
 		this.gameStage = stage;
 		this.gameDifficulty = difficulty;
@@ -124,14 +133,18 @@ public class Game {
 		BorderPane root = new BorderPane();
 
 		Pane topPane = new Pane();
-		topPane.setStyle("-fx-background-color: lightblue;");
 		topPane.setPrefHeight(400);
 
-		ImageView enemyImage = new ImageView(new Image(ClassLoader.getSystemResource("images/story.png").toString()));
+		ThemeGame.setFitWidth(960);
+		ThemeGame.setFitHeight(400);
+		ThemeGame.setOpacity(0.8);
+
+		topPane.getChildren().add(ThemeGame);
+
 		enemyImage.setFitWidth(250);
-		enemyImage.setFitHeight(250);
+		enemyImage.setFitHeight(280);
 		enemyImage.setLayoutX(650);
-		enemyImage.setLayoutY(30);
+		enemyImage.setLayoutY(20);
 
 		enemyNameLabel = new Label();
 		enemyNameLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: black;");
@@ -149,50 +162,51 @@ public class Game {
 		enemyStatusLabel.setLayoutY(335);
 
 		enemyHealth = new ProgressBar(1.0);// เริ่มต้นที่เต็มหลอด
+		enemyHealth.setStyle("-fx-accent: #D22B2B;");
 		enemyHealth.setPrefHeight(30);
 		enemyHealth.setPrefWidth(250);
 		enemyHealth.setLayoutX(650);
 		enemyHealth.setLayoutY(355);
 
 		// Player Zone
-		ImageView playerImage = new ImageView(
-				new Image(ClassLoader.getSystemResource("images/MainMenu.png").toString()));
+		playerImage = new ImageView(new Image(ClassLoader.getSystemResource("images/Player/Player.png").toString()));
 		playerImage.setFitWidth(250);
 		playerImage.setFitHeight(250);
 		playerImage.setLayoutX(80);
-		playerImage.setLayoutY(180);
+		playerImage.setLayoutY(150);
 
 		Label playerName = new Label("Player");
 		playerName.setStyle("-fx-font-size: 24px; -fx-text-fill: black;");
 		playerName.setLayoutX(80);
-		playerName.setLayoutY(50);
+		playerName.setLayoutY(30);
 
 		playerHPLabel = new Label("HP: " + player.getHp() + "/" + player.getMaxHp());
 		playerHPLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: black;");
 		playerHPLabel.setLayoutX(80);
-		playerHPLabel.setLayoutY(80);
+		playerHPLabel.setLayoutY(60);
 
 		playerMPLabel = new Label("MP: " + player.getMp() + "/" + player.getMaxMp());
 		playerMPLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: black;");
 		playerMPLabel.setLayoutX(190);
-		playerMPLabel.setLayoutY(80);
+		playerMPLabel.setLayoutY(60);
 
 		playerStatusLabel = new Label("Effects: None");
 		playerStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
 		playerStatusLabel.setLayoutX(80);
-		playerStatusLabel.setLayoutY(100);
+		playerStatusLabel.setLayoutY(80);
 
 		playerHealth = new ProgressBar(1.0);// เริ่มต้นที่เต็มหลอด
+		playerHealth.setStyle("-fx-accent: #D22B2B;");
 		playerHealth.setPrefHeight(30);
 		playerHealth.setPrefWidth(250);
 		playerHealth.setLayoutX(80);
-		playerHealth.setLayoutY(120);
+		playerHealth.setLayoutY(100);
 
 		playerMana = new ProgressBar(0.0);
 		playerMana.setPrefHeight(15);
 		playerMana.setPrefWidth(250);
 		playerMana.setLayoutX(80);
-		playerMana.setLayoutY(150);
+		playerMana.setLayoutY(130);
 
 		topPane.getChildren().addAll(playerImage, playerStatusLabel, playerName, playerHPLabel, playerMPLabel,
 				playerHealth, playerMana, enemyImage, enemyStatusLabel, enemyNameLabel, enemyHPLabel, enemyHealth);
@@ -205,7 +219,7 @@ public class Game {
 		mainButtonBox.setSpacing(10);
 		mainButtonBox.setPrefHeight(200);
 
-		Image backgroundImage = new Image(ClassLoader.getSystemResource("images/MainMenu.png").toString());
+		Image backgroundImage = new Image(ClassLoader.getSystemResource("images/Scene/MainMenu.png").toString());
 		BackgroundImage bgImage = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT,
 				BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
 				new BackgroundSize(960, 200, false, false, false, true));
@@ -326,6 +340,7 @@ public class Game {
 		switch (currentTheme) {
 		case FROST:
 			System.out.println("=== Frost Theme ===");
+			ThemeGame.setImage(new Image(ClassLoader.getSystemResource("images/ThemeGame/Theme_Ice.png").toString()));
 			bossList.add(new FrostfangQueen()); // Boss with ice-based abilities
 			monsterList.add(new SnowGoblin()); // Basic ice monster
 			monsterList.add(new FrostWisp()); // Magical ice creature
@@ -335,6 +350,7 @@ public class Game {
 
 		case LAVA:
 			System.out.println("=== Lava Theme ===");
+			ThemeGame.setImage(new Image(ClassLoader.getSystemResource("images/ThemeGame/Theme_Lava.png").toString()));
 			bossList.add(new VolcanoBoss()); // Boss with fire-based abilities
 			monsterList.add(new FlameImp()); // Quick fire attacker
 			monsterList.add(new LavaSlime()); // Basic lava monster
@@ -344,6 +360,7 @@ public class Game {
 
 		case STEAMPUNK:
 			System.out.println("=== Steampunk Theme ===");
+			ThemeGame.setImage(new Image(ClassLoader.getSystemResource("images/ThemeGame/Theme_Time.png").toString()));
 			bossList.add(new ClockworkRequiem()); // Mechanical boss
 			monsterList.add(new RustyAutomaton()); // Basic mechanical monster
 			monsterList.add(new SteamSpider()); // Quick mechanical monster
@@ -405,6 +422,19 @@ public class Game {
 	private void enemyAttack() {
 		System.out.println("\nEnemy's turn!");
 
+		TranslateTransition move = new TranslateTransition(Duration.seconds(0.3), enemyImage);
+		move.setToX(150 - 650);
+		move.setToY(100 - 20);
+
+		move.setOnFinished(ev -> {
+			TranslateTransition back = new TranslateTransition(Duration.seconds(1), enemyImage);
+			back.setToX(0);
+			back.setToY(0);
+			back.play();
+		});
+
+		move.play();
+
 		List<Skill> enemySkills = currentEnemy.getSkills();
 		if (enemySkills != null && !enemySkills.isEmpty()) {
 			Random randomGenerator = new Random();
@@ -418,7 +448,10 @@ public class Game {
 			int damageTaken = hpBefore - hpAfter;
 			gameStats.addDamageTaken(damageTaken); // เพิ่มค่าความเสียหายที่ได้รับ
 
-			playerHPLabel.setText("Player HP: " + player.getHp());
+			Platform.runLater(() -> {
+				playerHPLabel.setText("Player HP: " + player.getHp());
+				updateUI();
+			});
 		} else {
 			if (doesAttackHit(player)) {
 				int damage = Math.max(currentEnemy.getAtk() - player.getDef(), 1);
@@ -430,6 +463,7 @@ public class Game {
 		}
 
 		if (player.getHp() <= 0) {
+			SoundManager.playLoseSound();
 			showDefeatAlert();
 		} else {
 			if (player instanceof Player) {
@@ -477,7 +511,6 @@ public class Game {
 				selectedSkill.use(player, currentEnemy);
 				int enemyHpAfter = currentEnemy.getHp();
 
-				// อัพเดตทั้ง HP และ MP
 				enemyHP = enemyHpAfter;
 				enemyHPLabel.setText("HP: " + enemyHP);
 				playerMPLabel.setText("MP: " + playerChar.getMp() + "/" + playerChar.getMaxMp());
@@ -486,10 +519,8 @@ public class Game {
 				gameStats.addDamageDealt(damage);
 				gameStats.incrementSkillsUsed();
 
-				// ฟื้นฟู MP หลังจบเทิร์น
 				playerChar.restoreMp(10); // เปลี่ยนจาก 20 เป็น 10
 
-				// อัพเดต UI
 				updateUI();
 
 				if (enemyHP <= 0) {
@@ -579,6 +610,9 @@ public class Game {
 		case HARD:
 			baseXP = (int) (baseXP * 1.2);
 			break;
+		case NIGHTMARE:
+			baseXP = (int) (baseXP * 2);
+			break;
 		default: // NORMAL
 			break;
 		}
@@ -634,6 +668,7 @@ public class Game {
 	}
 
 	private void updateUI() {
+		enemyImage.setImage(ImageEnemy.getEnemyImage(currentEnemy.getName()));
 		enemyNameLabel.setText(currentEnemy.getName());
 		enemyHPLabel.setText(String.format("HP: %d/%d", enemyHP, currentEnemy.getMaxHp()));
 		playerHPLabel.setText(String.format("HP: %d/%d", player.getHp(), player.getMaxHp()));
@@ -659,7 +694,6 @@ public class Game {
 			}
 		}
 
-		// อัพเดตสถานะของศัตรู
 		List<String> enemyEffects = currentEnemy.getActiveEffects().stream()
 				.map(effect -> String.format("%s (%d turns)", effect.getName(), effect.getDuration()))
 				.collect(Collectors.toList());
@@ -672,7 +706,6 @@ public class Game {
 			enemyStatusLabel.setStyle("-fx-text-fill: #e74c3c;"); // สีแดงถ้ามีสถานะ
 		}
 
-		// แสดงข้อความว่ากำลังสู้กับใคร
 		if (isFightingBoss) {
 			System.out.println("Fighting boss: " + currentEnemy.getName());
 		} else {
@@ -727,8 +760,23 @@ public class Game {
 		}
 
 		skillButton.setOnAction(e -> {
+			if (skill.getName().equals("Basic Slash")) {
+				TranslateTransition move = new TranslateTransition(Duration.seconds(0.3), playerImage);
+				move.setToX(450 - 80);
+				move.setToY(30 - 150);
+
+				move.setOnFinished(ev -> {
+					TranslateTransition back = new TranslateTransition(Duration.seconds(1), playerImage);
+					back.setToX(0);
+					back.setToY(0);
+					back.play();
+				});
+
+				move.play();
+			}
 			useSkill(skill.getName());
 			showMainButtons();
+
 		});
 
 		return skillButton;

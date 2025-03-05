@@ -11,20 +11,23 @@ public abstract class BaseDebuff {
         this.duration = duration;
     }
 
-    public abstract void apply(Character target);
-    public abstract void remove(Character target);
-    public abstract void onTurnStart(Character target);
-    public abstract void onTurnEnd(Character target);
-
-    public String getName() {
-        return name;
-    }
-
     public int getDuration() {
         return duration;
     }
 
     public void decrementDuration() {
+        System.out.println("[DEBUG] " + name + " duration before: " + duration);
         duration--;
+        System.out.println("[DEBUG] " + name + " duration after: " + duration);
     }
+
+    // Add getName() method
+    public String getName() {
+        return name;
+    }
+
+    public abstract void apply(Character target);
+    public abstract void remove(Character target);
+    public abstract void onTurnStart(Character target);
+    public abstract void onTurnEnd(Character target);
 }

@@ -10,7 +10,6 @@ public class MoltenSplash extends Skill {
     private Random random;
 
     public MoltenSplash() {
-        // ตัวอย่าง: manaCost = 15, cooldown = 5
         super("Molten Splash", 15, 5, "Flings molten lava at the target, with a chance to inflict a 'Scorched' status that temporarily reduces DEF.");
         this.baseDamage = 20;
         this.multiplier = 1.4;
@@ -23,10 +22,12 @@ public class MoltenSplash extends Skill {
         target.takeDamage(damage);
         System.out.println(user.getName() + " uses Molten Splash on " + target.getName() + ", dealing " + damage + " damage.");
         
-        // โอกาส 40% ที่จะทำให้เป้าหมายติดสถานะ "Scorched" (ลด DEF ชั่วคราว)
-        if (random.nextDouble() < 0.4) {
-            target.applyEffect(new MoltenSplashEffect(2)); // ลด DEF เป็นเวลา 2 เทิร์น
+        if (!target.hasEffect("Molten Splash") && random.nextDouble() < 0.4) {
+            MoltenSplashEffect effect = new MoltenSplashEffect(2);
+            target.applyEffect(effect);
             System.out.println(target.getName() + " is scorched! DEF is temporarily reduced.");
+        } else {
+            System.out.println("[DEBUG] Target already affected by Molten Splash");
         }
     }
 }

@@ -20,7 +20,7 @@ public class UI_StoryDetails {
 
 	public void showStory() {
 		new Thread(() -> {
-			Image storyImg = new Image("images/story.png");
+			Image storyImg = new Image("images/Scene/story.png");
 			ImageView storyImage = new ImageView(storyImg);
 
 			Platform.runLater(() -> {

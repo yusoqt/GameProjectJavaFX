@@ -1,6 +1,5 @@
 package soundmanager;
 
-import javafx.application.Platform;
 import javafx.scene.media.AudioClip;
 import java.net.URL;
 
@@ -22,21 +21,18 @@ public class SoundManager {
 	}
 
 	public static void playClickSound() {
-		new Thread(() -> {
-			AudioClip clickSound = loadSound("click.mp3");
-			if (clickSound != null) {
-				Platform.runLater(() -> clickSound.play());
-			}
-		}).start();
+		AudioClip Sound = loadSound("click.mp3");
+		if (Sound != null) {
+			Sound.play();
+		}
 	}
-	
-	public static void LoseSound() {
-		new Thread(() -> {
-			AudioClip Sound = loadSound("lose.mp3");
-			if (Sound != null) {
-				Platform.runLater(() -> Sound.play());
-			}
-		}).start();
+
+	public static void playLoseSound() {
+		AudioClip Sound = loadSound("lose.mp3");
+		if (Sound != null) {
+			Sound.play();
+		}
+
 	}
 
 }

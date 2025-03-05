@@ -20,7 +20,7 @@ public class UI_DifficultySelection {
 
 	public UI_DifficultySelection(Stage stage) {
 		System.out.println("Choose Difficult");
-		Image gameBackgroundImage = new Image(ClassLoader.getSystemResource("images/StageSelector.png").toString());
+		Image gameBackgroundImage = new Image(ClassLoader.getSystemResource("images/Scene/StageSelector.png").toString());
 		ImageView backgroundGame = new ImageView(gameBackgroundImage);
 		backgroundGame.setFitWidth(960);
 		backgroundGame.setFitHeight(600);

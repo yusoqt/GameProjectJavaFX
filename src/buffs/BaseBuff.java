@@ -11,6 +11,14 @@ public abstract class BaseBuff {
         this.duration = duration;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public void decrementDuration() {
+        duration--;
+    }
+
     public abstract void apply(Character target);
     public abstract void remove(Character target);
     public abstract void onTurnStart(Character target);
@@ -18,9 +26,5 @@ public abstract class BaseBuff {
 
     public String getName() {
         return name;
-    }
-
-    public int getDuration() {
-        return duration;
     }
 }

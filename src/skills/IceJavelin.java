@@ -1,30 +1,30 @@
 package skills;
 
 import characters.Character;
-import effects.SlowEffect;
-import java.util.Random;
+import effects.ChillEffect;
 
 public class IceJavelin extends Skill {
-    private double multiplier;
-    private int baseDamage;
-    private Random random;
+    private float damageMultiplier = 1.2f;
+    private int baseDamage = 25; 
 
     public IceJavelin() {
-        super("Ice Javelin", 15, 4, "Throws an ice javelin at a distant target, dealing damage and possibly reducing their speed.");
-        this.baseDamage = 20;
-        this.multiplier = 1.7;
-        this.random = new Random();
+        super("Ice Javelin", 25, 3, "Throws a javelin of ice that can slow the target");
+    }
+    
+    private int calculateDamage(Character user, Character target) {
+        return Math.max((int)(baseDamage + (user.getAtk() * damageMultiplier) - (target.getDef() * 0.1)), 1);
     }
     
     @Override
     public void use(Character user, Character target) {
-        int damage = Math.max((int)(baseDamage + (user.getAtk() * multiplier) - (target.getDef() * 0.2)), 1);
+        int damage = calculateDamage(user, target);
         target.takeDamage(damage);
         System.out.println(user.getName() + " throws an Ice Javelin at " + target.getName() + ", dealing " + damage + " damage.");
         
-        // 40% chance to apply slow effect reducing target's speed
-        if (random.nextDouble() < 0.4) {
-            target.applyEffect(new SlowEffect(2, 15)); // duration 2 turns, reduce speed by 15 units
+        // Apply slow effect if not already slowed
+        if (!target.hasEffect("Chill")) {
+            ChillEffect chill = new ChillEffect(2, 5); 
+            target.applyEffect(chill);
             System.out.println(target.getName() + " is slowed by the impact of the Ice Javelin!");
         }
     }

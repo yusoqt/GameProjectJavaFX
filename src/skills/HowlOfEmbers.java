@@ -1,4 +1,3 @@
-//// filepath: /c:/Users/godof/Documents/CEDT/ProgMeth/ZPRO/new_game/src/skills/HowlOfEmbers.java
 package skills;
 
 import characters.Character;
@@ -12,11 +11,11 @@ public class HowlOfEmbers extends Skill {
     
     @Override
     public void use(Character user, Character target) {
-        // เพิ่มค่าโจมตีให้ผู้ใช้
-        user.applyEffect(new AttackUpEffect(2, 10));  // duration 2 turns, เพิ่ม attack 10
+        AttackUpEffect atkUp = new AttackUpEffect(2, 10);
+        user.applyEffect(atkUp);
         
-        // ลดค่าป้องกันของเป้าหมาย
-        target.applyEffect(new DefenseDownEffect(2, 10));  // duration 2 turns, ลด defense 10
+        DefenseDownEffect defDown = new DefenseDownEffect(2, 10);
+        target.applyEffect(defDown);
         
         System.out.println(user.getName() + " howls with burning fury!");
     }

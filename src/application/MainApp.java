@@ -13,7 +13,7 @@ public class MainApp extends Application {
 	public void start(Stage primaryStage) {
 		MainMenu mainMenu = new MainMenu(primaryStage);
 
-	    Image icon = new Image(ClassLoader.getSystemResource("images/IconGame.png").toString());
+	    Image icon = new Image(ClassLoader.getSystemResource("images/Icon/IconGame.png").toString());
 	    primaryStage.getIcons().add(icon);
 		
 		primaryStage.setTitle("Song of Twelve Feathers");

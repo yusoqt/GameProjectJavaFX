@@ -10,7 +10,12 @@ public class HighPitchWhirr extends Skill {
     
     @Override
     public void use(Character user, Character target) {
-        target.applyEffect(new HighPitchWhirrEffect(2, 15));  // 2 turns duration, 15 accuracy reduction
-        System.out.println(user.getName() + " uses High Pitch Whirr on " + target.getName() + "!");
+        if (!target.hasEffect("High Pitch Whirr")) {
+            HighPitchWhirrEffect effect = new HighPitchWhirrEffect(2, 15);
+            target.applyEffect(effect);
+            System.out.println(user.getName() + " uses High Pitch Whirr on " + target.getName() + "!");
+        } else {
+            System.out.println("[DEBUG] Target already affected by High Pitch Whirr");
+        }
     }
 }
