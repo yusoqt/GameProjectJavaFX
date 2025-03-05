@@ -9,7 +9,6 @@ import enemies.BaseBoss;
 import enemies.Monster;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -35,10 +34,10 @@ import java.util.Collections;
 import java.util.Random;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
-import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.event.EventHandler;
+import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -112,12 +111,11 @@ public class Game {
 		this.defeatedMonsters = new HashSet<>(); // ใช้ HashSet แทน ArrayList
 		this.isFightingBoss = false;
 
-
 		player = new Player("Adventure"); // สร้าง Player แทน Character
 		this.playerSkills = ((Player) player).getSkills(); // เก็บ skills ของ player
 
 		this.difficultyManager = new DifficultyManager(difficulty);
-        Monster.setDifficultyManager(difficultyManager); // ส่ง manager ไปให้ Monster class
+		Monster.setDifficultyManager(difficultyManager); // ส่ง manager ไปให้ Monster class
 
 		initializeThemes();
 		initializeMonstersAndBosses();
@@ -327,8 +325,18 @@ public class Game {
 	private void showMainButtons() {
 		skillButtonBox.setVisible(false);
 		skillButtonBox.setManaged(false);
+
+		PauseTransition delay = new PauseTransition(Duration.seconds(2)); // ใส่เวลา delay ที่ต้องการ
 		mainButtonBox.setVisible(true);
-		mainButtonBox.setManaged(true);
+		skillButtonBox.setManaged(true);
+		mainButtonBox.setDisable(true);
+
+		delay.setOnFinished(event -> {
+			mainButtonBox.setDisable(false);
+		});
+
+		delay.play();
+
 	}
 
 	private void initializeThemes() {
@@ -441,34 +449,45 @@ public class Game {
 		move.play();
 
 		List<Skill> enemySkills = currentEnemy.getSkills();
-        if (enemySkills != null && !enemySkills.isEmpty()) {
-            Random randomGenerator = new Random();
-            int index = randomGenerator.nextInt(enemySkills.size());
-            Skill chosenSkill = enemySkills.get(index);
-            
-            System.out.println(currentEnemy.getName() + " uses " + chosenSkill.getName() + "!");
-            int hpBefore = player.getHp();
-            
-            float difficultyModifier = difficultyManager.getDamageMultiplier();
-            chosenSkill.use(currentEnemy, player);
-            
-            int hpAfter = player.getHp();
-            int damageTaken = hpBefore - hpAfter;
-            gameStats.addDamageTaken(damageTaken);
-            
-            playerHPLabel.setText("Player HP: " + player.getHp());
-        } else {
-            if (doesAttackHit(currentEnemy, player)) {
-                float difficultyModifier = difficultyManager.getDamageMultiplier();
-                int damage = Math.max((int)(currentEnemy.getAtk() * difficultyModifier) - player.getDef(), 1);
-                player.takeDamage(damage);
-                gameStats.addDamageTaken(damage);
-                
-                System.out.println(currentEnemy.getName() + " attacks Player causing " + damage + " damage.");
-                playerHPLabel.setText("Player HP: " + player.getHp());
-            }
-        }
+		if (enemySkills != null && !enemySkills.isEmpty()) {
+			Random randomGenerator = new Random();
+			int index = randomGenerator.nextInt(enemySkills.size());
+			Skill chosenSkill = enemySkills.get(index);
 
+			System.out.println(currentEnemy.getName() + " uses " + chosenSkill.getName() + "!");
+			int hpBefore = player.getHp();
+
+			float difficultyModifier = difficultyManager.getDamageMultiplier() * 0.8f; // ลดจาก 0.9f เป็น 0.8f
+
+			int prevHp = player.getHp();
+			chosenSkill.use(currentEnemy, player);
+
+			int damage = prevHp - player.getHp();
+			int adjustedDamage = (int) (damage * difficultyModifier);
+			int newHp = prevHp - adjustedDamage;
+			if (newHp > prevHp - damage) { // ถ้าได้รับความเสียหายน้อยลง
+				player.setHp(newHp); // แก้ไข HP เป็นค่าที่ปรับแล้ว
+			}
+
+			int hpAfter = player.getHp();
+			int damageTaken = hpBefore - hpAfter;
+			gameStats.addDamageTaken(damageTaken);
+
+			playerHPLabel.setText("Player HP: " + player.getHp());
+		} else {
+			if (doesAttackHit(currentEnemy, player)) {
+				// ใช้ตัวคูณความยาก (ลดลงจากเดิม)
+				float difficultyModifier = difficultyManager.getDamageMultiplier() * 0.8f; // ลดจาก 0.9f เป็น 0.8f
+				int damage = Math.max((int) (currentEnemy.getAtk() * difficultyModifier) - player.getDef(), 1);
+				player.takeDamage(damage);
+				gameStats.addDamageTaken(damage);
+
+				System.out.println(currentEnemy.getName() + " attacks Player causing " + damage + " damage.");
+				playerHPLabel.setText("Player HP: " + player.getHp());
+			} else {
+				System.out.println(currentEnemy.getName() + " missed!");
+			}
+		}
 
 		if (player.getHp() <= 0) {
 			SoundManager.playLoseSound();
@@ -544,7 +563,11 @@ public class Game {
 					}
 					currentEnemy.getActiveEffects().removeIf(effect -> effect.getDuration() <= 0);
 
-					enemyAttack();
+					PauseTransition delay = new PauseTransition(Duration.seconds(1.3));
+					delay.setOnFinished(event -> {
+						enemyAttack();
+					});
+					delay.play();
 				}
 			} else {
 				System.out.println("Not enough MP to use skill!");
@@ -559,12 +582,12 @@ public class Game {
 	}
 
 	private boolean doesAttackHit(Character attacker, Character defender) {
-	    if (defender instanceof Player) {
-	        // เพิ่มโอกาสพลาดโจมตีผู้เล่นมากขึ้น
-	        return Math.random() * 100 > defender.getSpd() * 0.3; // เพิ่มจาก 0.25 เป็น 0.3
-	    }
-	    // โอกาสผู้เล่นโจมตีพลาดคงเดิม
-	    return Math.random() * 100 > defender.getSpd() * 0.2;
+		if (defender instanceof Player) {
+			// เพิ่มโอกาสพลาดโจมตีผู้เล่นมากขึ้น
+			return Math.random() * 100 > defender.getSpd() * 0.3; // เพิ่มจาก 0.25 เป็น 0.3
+		}
+		// โอกาสผู้เล่นโจมตีพลาดคงเดิม
+		return Math.random() * 100 > defender.getSpd() * 0.2;
 	}
 
 	public void startUserTurn() {
@@ -770,20 +793,20 @@ public class Game {
 		}
 
 		skillButton.setOnAction(e -> {
-			if (skill.getName().equals("Basic Slash")) {
-				TranslateTransition move = new TranslateTransition(Duration.seconds(0.3), playerImage);
-				move.setToX(450 - 80);
-				move.setToY(30 - 150);
 
-				move.setOnFinished(ev -> {
-					TranslateTransition back = new TranslateTransition(Duration.seconds(1), playerImage);
-					back.setToX(0);
-					back.setToY(0);
-					back.play();
-				});
+			TranslateTransition move = new TranslateTransition(Duration.seconds(0.3), playerImage);
+			move.setToX(450 - 80);
+			move.setToY(30 - 150);
 
-				move.play();
-			}
+			move.setOnFinished(ev -> {
+				TranslateTransition back = new TranslateTransition(Duration.seconds(1), playerImage);
+				back.setToX(0);
+				back.setToY(0);
+				back.play();
+			});
+
+			move.play();
+
 			useSkill(skill.getName());
 			showMainButtons();
 
