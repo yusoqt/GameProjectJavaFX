@@ -1,15 +1,11 @@
 package enemies;
 
-import skills.TimeDistortion;
-import skills.GearCannon;
-import skills.Reconstruct;
-import skills.PowerSurge;
-import skills.SnowstormVeil;
 import java.util.List;
+import skills.*;
 
 public class ClockworkRequiem extends BaseBoss {
     public ClockworkRequiem() {
-        super("Clockwork Requiem", 1300, 130, 100, 85, List.of(
+        super("Clockwork Requiem", 900, 90, 75, 80, List.of(
             new TimeDistortion(),
             new GearCannon()
         ), null);

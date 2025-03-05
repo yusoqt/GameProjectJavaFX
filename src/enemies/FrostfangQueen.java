@@ -1,14 +1,14 @@
 package enemies;
 
 import java.util.List;
-import skills.PowerSurge;
-import skills.SnowstormVeil;
+import skills.*;
 
 public class FrostfangQueen extends BaseBoss {
     public FrostfangQueen() {
-        super("Frostfang Queen", 1200, 140, 110, 90, List.of(
-            new SnowstormVeil("Snowstorm Veil", 5, 3, 20),
-            new PowerSurge("Power Surge", 5, 3, 30)
+        super("Frostfang Queen", 900, 90, 70, 85, List.of( 
+            // ปรับค่าพารามิเตอร์ให้น้อยลงเพื่อลดความรุนแรงของสกิล
+            new SnowstormVeil("Snowstorm Veil", 4, 3, 15), // ลดความเสียหายและระยะเวลาของ effect
+            new PowerSurge("Power Surge", 4, 3, 20) // ลดความเสียหาย
         ), null);
     }
 }

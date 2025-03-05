@@ -95,6 +95,8 @@ public class Game {
 
 	private ImageView ThemeGame = new ImageView();
 
+	private DifficultyManager difficultyManager;
+
 	public Game(Stage stage, Difficulty difficulty) {
 		this.gameStage = stage;
 		this.gameDifficulty = difficulty;
@@ -110,9 +112,12 @@ public class Game {
 		this.defeatedMonsters = new HashSet<>(); // ใช้ HashSet แทน ArrayList
 		this.isFightingBoss = false;
 
+
 		player = new Player("Adventure"); // สร้าง Player แทน Character
-		new DifficultyManager(difficulty);
 		this.playerSkills = ((Player) player).getSkills(); // เก็บ skills ของ player
+
+		this.difficultyManager = new DifficultyManager(difficulty);
+        Monster.setDifficultyManager(difficultyManager); // ส่ง manager ไปให้ Monster class
 
 		initializeThemes();
 		initializeMonstersAndBosses();
@@ -436,31 +441,34 @@ public class Game {
 		move.play();
 
 		List<Skill> enemySkills = currentEnemy.getSkills();
-		if (enemySkills != null && !enemySkills.isEmpty()) {
-			Random randomGenerator = new Random();
-			int index = randomGenerator.nextInt(enemySkills.size());
-			Skill chosenSkill = enemySkills.get(index);
+        if (enemySkills != null && !enemySkills.isEmpty()) {
+            Random randomGenerator = new Random();
+            int index = randomGenerator.nextInt(enemySkills.size());
+            Skill chosenSkill = enemySkills.get(index);
+            
+            System.out.println(currentEnemy.getName() + " uses " + chosenSkill.getName() + "!");
+            int hpBefore = player.getHp();
+            
+            float difficultyModifier = difficultyManager.getDamageMultiplier();
+            chosenSkill.use(currentEnemy, player);
+            
+            int hpAfter = player.getHp();
+            int damageTaken = hpBefore - hpAfter;
+            gameStats.addDamageTaken(damageTaken);
+            
+            playerHPLabel.setText("Player HP: " + player.getHp());
+        } else {
+            if (doesAttackHit(currentEnemy, player)) {
+                float difficultyModifier = difficultyManager.getDamageMultiplier();
+                int damage = Math.max((int)(currentEnemy.getAtk() * difficultyModifier) - player.getDef(), 1);
+                player.takeDamage(damage);
+                gameStats.addDamageTaken(damage);
+                
+                System.out.println(currentEnemy.getName() + " attacks Player causing " + damage + " damage.");
+                playerHPLabel.setText("Player HP: " + player.getHp());
+            }
+        }
 
-			System.out.println(currentEnemy.getName() + " uses " + chosenSkill.getName() + "!");
-			int hpBefore = player.getHp();
-			chosenSkill.use(currentEnemy, player);
-			int hpAfter = player.getHp();
-			int damageTaken = hpBefore - hpAfter;
-			gameStats.addDamageTaken(damageTaken); // เพิ่มค่าความเสียหายที่ได้รับ
-
-			Platform.runLater(() -> {
-				playerHPLabel.setText("Player HP: " + player.getHp());
-				updateUI();
-			});
-		} else {
-			if (doesAttackHit(player)) {
-				int damage = Math.max(currentEnemy.getAtk() - player.getDef(), 1);
-				player.takeDamage(damage);
-				gameStats.addDamageTaken(damage); // เพิ่มค่าความเสียหายที่ได้รับ
-				System.out.println(currentEnemy.getName() + " attacks Player causing " + damage + " damage.");
-				playerHPLabel.setText("Player HP: " + player.getHp());
-			}
-		}
 
 		if (player.getHp() <= 0) {
 			SoundManager.playLoseSound();
@@ -550,11 +558,13 @@ public class Game {
 		playerHPLabel.setText("Player HP: " + playerHP);
 	}
 
-	private boolean doesAttackHit(Character defender) {
-		if (defender instanceof Player) {
-			return Math.random() * 100 > defender.getSpd() * 0.25;
-		}
-		return Math.random() * 100 > defender.getSpd() * 0.2;
+	private boolean doesAttackHit(Character attacker, Character defender) {
+	    if (defender instanceof Player) {
+	        // เพิ่มโอกาสพลาดโจมตีผู้เล่นมากขึ้น
+	        return Math.random() * 100 > defender.getSpd() * 0.3; // เพิ่มจาก 0.25 เป็น 0.3
+	    }
+	    // โอกาสผู้เล่นโจมตีพลาดคงเดิม
+	    return Math.random() * 100 > defender.getSpd() * 0.2;
 	}
 
 	public void startUserTurn() {

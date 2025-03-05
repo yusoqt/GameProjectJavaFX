@@ -1,6 +1,9 @@
 package skills;
 
 import characters.Character;
+import game.DifficultyManager;
+import player.Player;
+import java.util.Random;
 
 /*
  * Skill: คลาสพื้นฐานสำหรับสกิล
@@ -37,4 +40,32 @@ public abstract class Skill {
     }
 
     public abstract void use(Character user, Character target);
+
+    // คำนวณความเสียหายตามความยาก - แก้ไขโดยไม่ต้องใช้ DifficultyManager เป็น parameter
+    protected int calculateDamage(int baseDamage, Character user, Character target) {
+        float multiplier = 1.0f;
+        
+        // ตรวจสอบเพื่อปรับความเสียหาย
+        if (!(user instanceof Player)) {
+            // ลดความเสียหายของศัตรูทุกตัวลง 10%
+            multiplier = 0.9f;
+        }
+        
+        int damage = Math.max((int)(baseDamage * multiplier) - target.getDef(), 1);
+        return damage;
+    }
+    
+    // Overload method สำหรับกรณีมี DifficultyManager
+    protected int calculateDamage(int baseDamage, Character user, Character target, DifficultyManager diffMgr) {
+        float multiplier = 1.0f;
+        
+        // ถ้าผู้ใช้เป็นผู้เล่น ใช้ตัวคูณปกติ
+        // ถ้าผู้ใช้เป็นมอนสเตอร์หรือบอส ใช้ตัวคูณความเสียหาย
+        if (!(user instanceof Player) && diffMgr != null) {
+            multiplier = diffMgr.getDamageMultiplier();
+        }
+        
+        int damage = Math.max((int)(baseDamage * multiplier) - target.getDef(), 1);
+        return damage;
+    }
 }
