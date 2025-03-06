@@ -55,8 +55,7 @@ public abstract class Character {
     
     public int getHp() { return hp; }
     public void takeDamage(int damage) { 
-        this.hp -= damage;
-        if (this.hp < 0) this.hp = 0;
+        this.hp = Math.max(0, this.hp - damage);  // ป้องกัน HP ติดลบ
     }
     public String getName() { return name; }
     public int getAtk() { return atk; }

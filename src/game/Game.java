@@ -90,6 +90,7 @@ public class Game {
 
 		this.difficultyManager = new DifficultyManager(difficulty);
 		Monster.setDifficultyManager(difficultyManager); // ส่ง manager ไปให้ Monster class
+		BaseBoss.setDifficultyManager(difficultyManager); // เพิ่มการส่ง manager ไปให้ BaseBoss class
 
 		initializeThemes();
 		initializeMonstersAndBosses();
@@ -415,7 +416,9 @@ public class Game {
 		} else {
 			// แก้ไขส่วนนี้เพื่อให้สุ่มมอนเตอร์ไม่ซ้ำ
 			List<Monster> availableMonsters = new ArrayList<>(monsterList);
-			availableMonsters.removeAll(defeatedMonsters); // ลบมอนเตอร์ที่เคยเจอแล้วออก
+			// กรองเฉพาะมอนสเตอร์ที่ยังไม่เคยเจอ
+			availableMonsters.removeIf(monster -> defeatedMonsters.stream()
+					.anyMatch(defeated -> defeated.getName().equals(monster.getName())));
 
 			if (!availableMonsters.isEmpty()) {
 				// สุ่มมอนเตอร์จากรายการที่ยังไม่เคยเจอ
@@ -460,7 +463,7 @@ public class Game {
 			System.out.println(currentEnemy.getName() + " uses " + chosenSkill.getName() + "!");
 			int hpBefore = player.getHp();
 
-			float difficultyModifier = difficultyManager.getDamageMultiplier() * 0.8f; // ลดจาก 0.9f เป็น 0.8f
+			float difficultyModifier = difficultyManager.getDamageMultiplier();
 
 			int prevHp = player.getHp();
 			chosenSkill.use(currentEnemy, player);
@@ -468,8 +471,8 @@ public class Game {
 			int damage = prevHp - player.getHp();
 			int adjustedDamage = (int) (damage * difficultyModifier);
 			int newHp = prevHp - adjustedDamage;
-			if (newHp > prevHp - damage) { // ถ้าได้รับความเสียหายน้อยลง
-				player.setHp(newHp); // แก้ไข HP เป็นค่าที่ปรับแล้ว
+			if (newHp > prevHp - damage) {
+				player.setHp(newHp);
 			}
 
 			int hpAfter = player.getHp();
@@ -479,8 +482,7 @@ public class Game {
 			playerHPLabel.setText("Player HP: " + player.getHp());
 		} else {
 			if (doesAttackHit(currentEnemy, player)) {
-				// ใช้ตัวคูณความยาก (ลดลงจากเดิม)
-				float difficultyModifier = difficultyManager.getDamageMultiplier() * 0.8f; // ลดจาก 0.9f เป็น 0.8f
+				float difficultyModifier = difficultyManager.getDamageMultiplier();
 				int damage = Math.max((int) (currentEnemy.getAtk() * difficultyModifier) - player.getDef(), 1);
 				player.takeDamage(damage);
 				gameStats.addDamageTaken(damage);
@@ -492,9 +494,11 @@ public class Game {
 			}
 		}
 
+		// แก้ไขการเช็ค HP ของผู้เล่น
 		if (player.getHp() <= 0) {
 			SoundManager.playLoseSound();
 			Platform.runLater(this::showDefeatAlert);
+			return; // เพิ่ม return เพื่อจบการทำงานของเมธอดทันที
 		} else {
 			if (player instanceof Player) {
 				Player p = (Player) player;
@@ -740,11 +744,11 @@ public class Game {
 		defeatAlert.setHeaderText("You have been defeated!");
 		defeatAlert.setContentText("Better luck next time!");
 		
-		defeatAlert.setOnShown(e -> {
-			Platform.runLater(this::showGameCompleteAlert);
-		});
+		// แก้ไขเป็น showAndWait แทน show() เพื่อรอให้ผู้เล่นกด OK ก่อน
+		defeatAlert.showAndWait();
 		
-		defeatAlert.show();
+		// เรียกแสดงหน้าสรุปผลเกมโดยตรง
+		showGameCompleteAlert();
 	}
 
 	public List<Skill> getSkills() {
@@ -773,20 +777,27 @@ public class Game {
 	}
 
 	private void resetEnemyStats() {
-		if (currentEnemy == null)
-			return;
+	    if (currentEnemy == null)
+	        return;
 
-		if (isFightingBoss && currentEnemy instanceof BaseBoss) {
-			if (!bossList.isEmpty() && bossList.get(0).getName().equals(currentEnemy.getName())) {
-				currentEnemy = new BaseBoss(currentEnemy.getName(), currentEnemy.getMaxHp(), currentEnemy.getAtk(),
-						currentEnemy.getDef(), currentEnemy.getSpd(), currentEnemy.getSkills(),
-						((BaseBoss) currentEnemy).getFieldEffect());
-			}
-		} else if (currentEnemy instanceof Monster && !defeatedMonsters.contains((Monster) currentEnemy)) {
-			currentEnemy = new Monster(currentEnemy.getName(), currentEnemy.getMaxHp(), currentEnemy.getAtk(),
-					currentEnemy.getDef(), currentEnemy.getSpd(), currentEnemy.getSkills());
-		}
-		enemyHP = currentEnemy.getHp();
+	    if (isFightingBoss && currentEnemy instanceof BaseBoss) {
+	        if (!bossList.isEmpty() && bossList.get(0).getName().equals(currentEnemy.getName())) {
+	            BaseBoss boss = (BaseBoss) currentEnemy;
+	            currentEnemy = new BaseBoss(
+	                currentEnemy.getName(), 
+	                currentEnemy.getMaxHp(), // ค่า MaxHp จะถูกปรับความยากโดยอัตโนมัติในคอนสตรักเตอร์
+	                currentEnemy.getAtk(),   // ค่า atk จะถูกปรับความยากโดยอัตโนมัติในคอนสตรักเตอร์
+	                currentEnemy.getDef(),   // ค่า def จะถูกปรับความยากโดยอัตโนมัติในคอนสตรักเตอร์
+	                currentEnemy.getSpd(),   // ค่า spd จะถูกปรับความยากโดยอัตโนมัติในคอนสตรักเตอร์
+	                currentEnemy.getSkills(),
+	                boss.getFieldEffect()
+	            );
+	        }
+	    } else if (currentEnemy instanceof Monster && !defeatedMonsters.contains((Monster) currentEnemy)) {
+	        currentEnemy = new Monster(currentEnemy.getName(), currentEnemy.getMaxHp(), currentEnemy.getAtk(),
+	                currentEnemy.getDef(), currentEnemy.getSpd(), currentEnemy.getSkills());
+	    }
+	    enemyHP = currentEnemy.getHp();
 	}
 
 	private void updateUI() {

@@ -5,6 +5,7 @@ import java.util.List;
 import skills.Skill;
 import game.Difficulty;
 import game.DifficultyManager;
+import java.util.Objects;
 
 public class Monster extends Character {
     private static DifficultyManager diffManager;
@@ -30,5 +31,18 @@ public class Monster extends Character {
             (int)(spd * diffManager.getStatMultiplier()),
             skills
         );
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Monster monster = (Monster) obj;
+        return getName().equals(monster.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }
