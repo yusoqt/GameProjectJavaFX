@@ -1,0 +1,5 @@
+# คอมไพล์ทั้งโปรเจค
+javac --module-path "C:\Program Files\Java\javafx-sdk-23.0.2\lib" --add-modules javafx.controls,javafx.fxml,javafx.media -d bin -cp src src/application/MainApp.java src/ui/MainMenu.java src/ui/UI_DifficultySelection.java src/ui/UI_StoryDetails.java src/soundmanager/SoundManager.java
+
+# รันเกม
+java --module-path "C:\Program Files\Java\javafx-sdk-23.0.2\lib" --add-modules javafx.controls,javafx.fxml,javafx.media -cp bin application.MainApp
