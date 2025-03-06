@@ -12,16 +12,8 @@ public class UIManager {
         this.stage = stage;
     }
 
-    public void showTitleScreen() {
-        new UI_TitleScreen(stage);
-    }
-
     public void showDifficultySelection() {
         new UI_DifficultySelection(stage);
-    }
-
-    public void showTownScreen() {
-        new UI_Town(stage);
     }
 
     public void showInventoryScreen(Player player, Scene previousScene) {
