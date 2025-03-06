@@ -413,10 +413,12 @@ public class Game {
 				return;
 			}
 		} else {
-			List<Monster> availableMonsters = monsterList.stream().filter(m -> !defeatedMonsters.contains(m))
-					.collect(Collectors.toList());
+			// แก้ไขส่วนนี้เพื่อให้สุ่มมอนเตอร์ไม่ซ้ำ
+			List<Monster> availableMonsters = new ArrayList<>(monsterList);
+			availableMonsters.removeAll(defeatedMonsters); // ลบมอนเตอร์ที่เคยเจอแล้วออก
 
 			if (!availableMonsters.isEmpty()) {
+				// สุ่มมอนเตอร์จากรายการที่ยังไม่เคยเจอ
 				currentEnemy = availableMonsters.get(randomGenerator.nextInt(availableMonsters.size()));
 				System.out.println("Fighting monster: " + currentEnemy.getName());
 			} else {
@@ -678,8 +680,15 @@ public class Game {
 			fight();
 		} else {
 			if (defeatedEnemy instanceof Monster) {
-				defeatedMonsters.add((Monster) defeatedEnemy);
+				Monster defeatedMonster = (Monster) defeatedEnemy;
+				// เพิ่มการตรวจสอบว่ามอนสเตอร์นี้ยังไม่เคยถูกเพิ่มใน defeatedMonsters
+				if (!defeatedMonsters.contains(defeatedMonster)) {
+					defeatedMonsters.add(defeatedMonster);
+					System.out.println("Added " + defeatedMonster.getName() + " to defeated monsters list");
+					System.out.println("Total defeated monsters: " + defeatedMonsters.size());
+				}
 			}
+			
 			victoryAlert.setHeaderText("Defeated: " + defeatedEnemy.getName());
 			victoryAlert.setContentText(String.format("Experience gained: %d", totalXP));
 			gameStats.incrementMonstersDefeated();
@@ -691,6 +700,16 @@ public class Game {
 			}
 
 			victoryAlert.showAndWait();
+			
+			// เพิ่มการตรวจสอบว่าได้เจอมอนสเตอร์ครบทุกตัวหรือยัง
+			if (defeatedMonsters.size() >= monsterList.size()) {
+				System.out.println("All monsters in this theme have been defeated!");
+				// เตรียมสู้กับบอส
+				if (!bossList.isEmpty()) {
+					isFightingBoss = true;
+				}
+			}
+			
 			fight();
 		}
 	}
