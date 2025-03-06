@@ -1,55 +1,29 @@
 package game;
 
-import characters.Character;
-import enemies.ClockworkRequiem;
-import enemies.FrostfangQueen;
-import enemies.IceDrake;
-import enemies.BatteryMantis;
-import enemies.BaseBoss;
-import enemies.Monster;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.BackgroundPosition;
-import javafx.scene.layout.BackgroundRepeat;
-import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import skills.Skill;
-import soundmanager.SoundManager;
-import player.Player;
-import enemies.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.event.EventHandler;
-import javafx.animation.PauseTransition;
-import javafx.animation.TranslateTransition;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Set;
-import java.util.HashSet;
-import ui.UI_GameSummary;
+
+import javafx.animation.*;
+import javafx.application.Platform;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.Map;
-import java.util.HashMap;
+import characters.Character;
 import effects.BaseDotEffect;
+import enemies.*;
+import items.Item;
+import player.Player;
+import skills.Skill;
+import soundmanager.SoundManager;
+import ui.UI_GameSummary;
 
 public class Game {
 	private static Game currentGame;
@@ -144,6 +118,16 @@ public class Game {
 
 		topPane.getChildren().add(ThemeGame);
 
+		Rectangle frameEnemy = new Rectangle();
+		frameEnemy.setX(650); // ปรับตำแหน่งให้ใหญ่กว่า Label เล็กน้อย
+		frameEnemy.setY(290);
+		frameEnemy.setWidth(250); // ปรับความกว้างให้ครอบคลุมทั้งหมด
+		frameEnemy.setHeight(100); // ปรับความสูงให้ครอบคลุมทั้งหมด
+		frameEnemy.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.5));
+		frameEnemy.setStroke(null);
+		frameEnemy.setArcWidth(20); // ความโค้งในแนวนอน
+		frameEnemy.setArcHeight(20); // ความโค้งในแนวตั้ง
+
 		enemyImage.setFitWidth(250);
 		enemyImage.setFitHeight(280);
 		enemyImage.setLayoutX(650);
@@ -151,25 +135,24 @@ public class Game {
 
 		enemyNameLabel = new Label();
 		enemyNameLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: black;");
-		enemyNameLabel.setLayoutX(650);
-		enemyNameLabel.setLayoutY(285);
+		enemyNameLabel.setLayoutX(660);
+		enemyNameLabel.setLayoutY(290);
 
 		enemyHPLabel = new Label("HP: " + "0" + "/" + "0");
 		enemyHPLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: black;");
-		enemyHPLabel.setLayoutX(650);
-		enemyHPLabel.setLayoutY(315);
+		enemyHPLabel.setLayoutX(660);
+		enemyHPLabel.setLayoutY(320);
 
 		enemyStatusLabel = new Label("Effects: None");
-		enemyStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
-		enemyStatusLabel.setLayoutX(650);
-		enemyStatusLabel.setLayoutY(335);
+		enemyStatusLabel.setLayoutX(660);
+		enemyStatusLabel.setLayoutY(340);
 
 		enemyHealth = new ProgressBar(1.0);// เริ่มต้นที่เต็มหลอด
 		enemyHealth.setStyle("-fx-accent: #D22B2B;");
 		enemyHealth.setPrefHeight(30);
 		enemyHealth.setPrefWidth(250);
 		enemyHealth.setLayoutX(650);
-		enemyHealth.setLayoutY(355);
+		enemyHealth.setLayoutY(360);
 
 		// Player Zone
 		playerImage = new ImageView(new Image(ClassLoader.getSystemResource("images/Player/Player.png").toString()));
@@ -177,6 +160,16 @@ public class Game {
 		playerImage.setFitHeight(250);
 		playerImage.setLayoutX(80);
 		playerImage.setLayoutY(150);
+
+		Rectangle framePlayer = new Rectangle();
+		framePlayer.setX(70); // ปรับตำแหน่งให้ใหญ่กว่า Label เล็กน้อย
+		framePlayer.setY(20);
+		framePlayer.setWidth(250); // ปรับความกว้างให้ครอบคลุมทั้งหมด
+		framePlayer.setHeight(100); // ปรับความสูงให้ครอบคลุมทั้งหมด
+		framePlayer.setFill(Color.WHITE.deriveColor(0, 1, 1, 0.5));
+		framePlayer.setStroke(null);
+		framePlayer.setArcWidth(20); // ความโค้งในแนวนอน
+		framePlayer.setArcHeight(20); // ความโค้งในแนวตั้ง
 
 		Label playerName = new Label("Player");
 		playerName.setStyle("-fx-font-size: 24px; -fx-text-fill: black;");
@@ -194,7 +187,6 @@ public class Game {
 		playerMPLabel.setLayoutY(60);
 
 		playerStatusLabel = new Label("Effects: None");
-		playerStatusLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #e74c3c;");
 		playerStatusLabel.setLayoutX(80);
 		playerStatusLabel.setLayoutY(80);
 
@@ -202,31 +194,36 @@ public class Game {
 		playerHealth.setStyle("-fx-accent: #D22B2B;");
 		playerHealth.setPrefHeight(30);
 		playerHealth.setPrefWidth(250);
-		playerHealth.setLayoutX(80);
+		playerHealth.setLayoutX(70);
 		playerHealth.setLayoutY(100);
 
 		playerMana = new ProgressBar(0.0);
 		playerMana.setPrefHeight(15);
 		playerMana.setPrefWidth(250);
-		playerMana.setLayoutX(80);
+		playerMana.setLayoutX(70);
 		playerMana.setLayoutY(130);
 
-		topPane.getChildren().addAll(playerImage, playerStatusLabel, playerName, playerHPLabel, playerMPLabel,
-				playerHealth, playerMana, enemyImage, enemyStatusLabel, enemyNameLabel, enemyHPLabel, enemyHealth);
+		topPane.getChildren().addAll(framePlayer, playerImage, playerStatusLabel, playerName, playerHPLabel,
+				playerMPLabel, playerHealth, playerMana, frameEnemy, enemyImage, enemyStatusLabel, enemyNameLabel,
+				enemyHPLabel, enemyHealth);
 
 		root.setTop(topPane);
 
-		VBox buttomPane = new VBox();
+		VBox bottomPane = new VBox();
 
 		mainButtonBox = new HBox();
 		mainButtonBox.setSpacing(10);
 		mainButtonBox.setPrefHeight(200);
 
-		Image backgroundImage = new Image(ClassLoader.getSystemResource("images/Scene/MainMenu.png").toString());
-		BackgroundImage bgImage = new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT,
-				BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
-				new BackgroundSize(960, 200, false, false, false, true));
-		buttomPane.setBackground(new Background(bgImage));
+		ImageView barImage = new ImageView(new Image(ClassLoader.getSystemResource("images/Scene/Bar.png").toString()));
+		barImage.setFitWidth(960);
+		barImage.setFitHeight(200);
+		BackgroundImage backgroundImage = new BackgroundImage(barImage.getImage(), // ใช้รูปภาพจาก ImageView
+				BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+				new BackgroundSize(960, 200, false, false, false, false));
+
+		bottomPane.setBackground(new Background(backgroundImage));
+		bottomPane.setPrefSize(960, 200); // ตั้งขนาดของ VBox
 
 		Button skillButton = createStyledButton("Use Skill", e -> {
 			mainButtonBox.setVisible(false);
@@ -300,9 +297,9 @@ public class Game {
 		skillButtonBox.setVisible(false);
 		skillButtonBox.setManaged(false);
 
-		buttomPane.getChildren().addAll(mainButtonBox, skillButtonBox);
+		bottomPane.getChildren().addAll(mainButtonBox, skillButtonBox);
 
-		root.setBottom(buttomPane);
+		root.setBottom(bottomPane);
 
 		this.scene = new Scene(root, 960, 600);
 	}
@@ -402,10 +399,11 @@ public class Game {
 			System.out.println("Starting boss fight: " + currentEnemy.getName());
 		} else if ((defeatedMonsters.size() >= monsterList.size() && bossList.isEmpty())
 				|| (isFightingBoss && bossList.isEmpty())) {
+			isFightingBoss = false;
+
 			if (!themeList.isEmpty()) {
 				currentTheme = themeList.remove(0);
 				defeatedMonsters.clear();
-				isFightingBoss = false;
 				System.out.println("\nChanging to new theme: " + currentTheme);
 				initializeMonstersAndBosses();
 				fight();
@@ -422,7 +420,8 @@ public class Game {
 				currentEnemy = availableMonsters.get(randomGenerator.nextInt(availableMonsters.size()));
 				System.out.println("Fighting monster: " + currentEnemy.getName());
 			} else {
-				System.out.println("No available monsters left!");
+				System.out.println("No available monsters left! Moving to boss fight.");
+				fight();
 				return;
 			}
 		}
@@ -438,6 +437,8 @@ public class Game {
 		TranslateTransition move = new TranslateTransition(Duration.seconds(0.3), enemyImage);
 		move.setToX(150 - 650);
 		move.setToY(100 - 20);
+
+		SoundManager.playEnemyAttackSound();
 
 		move.setOnFinished(ev -> {
 			TranslateTransition back = new TranslateTransition(Duration.seconds(1), enemyImage);
@@ -552,10 +553,13 @@ public class Game {
 
 				if (enemyHP <= 0) {
 					System.out.println("Enemy defeated!");
-					if (currentEnemy instanceof Monster) {
-						showVictoryAlert((Monster) currentEnemy);
-					}
-					fight();
+                    if (isFightingBoss && currentEnemy instanceof BaseBoss) {
+                        showVictoryAlert(currentEnemy);  // ไม่ต้อง cast เป็น Monster อีกต่อไป
+                        return;
+                    } else if (currentEnemy instanceof Monster) {
+                        showVictoryAlert(currentEnemy);  // ไม่ต้อง cast เป็น Monster อีกต่อไป
+                        return;
+                    }
 				} else {
 					// ให้เอฟเฟคทำงานก่อนจบเทิร์น
 					for (BaseDotEffect effect : currentEnemy.getActiveEffects()) {
@@ -576,10 +580,44 @@ public class Game {
 	}
 
 	private void useItem() {
-		System.out.println("Using item...");
-		playerHP += 10;
-		playerHPLabel.setText("Player HP: " + playerHP);
-	}
+        if (!(player instanceof Player)) return;
+        Player playerChar = (Player) player;
+        
+        List<Item> inventory = playerChar.getInventory();
+        if (inventory.isEmpty()) {
+            Alert noItemsAlert = new Alert(Alert.AlertType.INFORMATION);
+            noItemsAlert.setTitle("No Items");
+            noItemsAlert.setHeaderText("Inventory Empty");
+            noItemsAlert.setContentText("You don't have any items to use.");
+            noItemsAlert.showAndWait();
+            return;
+        }
+        
+        // สร้างไดอะล็อกเพื่อเลือกไอเทม
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(
+            inventory.get(0).getName(), 
+            inventory.stream().map(Item::getName).collect(Collectors.toList())
+        );
+        dialog.setTitle("Use Item");
+        dialog.setHeaderText("Select an item to use:");
+        dialog.setContentText("Item:");
+        
+        // จัดการผลลัพธ์เมื่อผู้ใช้เลือกไอเทม
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(itemName -> {
+            // หาไอเทมที่มีชื่อตรงกัน
+            Item selectedItem = inventory.stream()
+                    .filter(item -> item.getName().equals(itemName))
+                    .findFirst()
+                    .orElse(null);
+                    
+            if (selectedItem != null) {
+                playerChar.useItem(selectedItem);
+                updateUI(); // อัพเดต UI หลังจากใช้ไอเทม
+                System.out.println("Used " + selectedItem.getName());
+            }
+        });
+    }
 
 	private boolean doesAttackHit(Character attacker, Character defender) {
 		if (defender instanceof Player) {
@@ -601,7 +639,7 @@ public class Game {
 		}
 	}
 
-	private void showVictoryAlert(Monster defeatedEnemy) {
+	private void showVictoryAlert(Character defeatedEnemy) {
 		int baseXP = calculateBaseXP(defeatedEnemy);
 		int bonusXP = isFightingBoss ? baseXP * 2 : 0;
 		int totalXP = baseXP + bonusXP;
@@ -610,30 +648,54 @@ public class Game {
 		victoryAlert.setTitle("Victory!");
 
 		if (isFightingBoss) {
+
 			bossList.remove(0);
+			isFightingBoss = false;
+
 			victoryAlert.setHeaderText("Boss Defeated: " + defeatedEnemy.getName());
 			victoryAlert.setContentText(String.format(
 					"Congratulations!\nBase XP: %d\nBoss Bonus: %d\nTotal XP gained: %d", baseXP, bonusXP, totalXP));
 			gameStats.incrementBossesDefeated();
+
+			if (player instanceof Player) {
+				((Player) player).addXP(totalXP);
+				gameStats.addXP(totalXP); // เพิ่ม XP ลงในสถิติ
+				System.out.println("Player gained " + totalXP + " XP");
+			}
+
+			victoryAlert.showAndWait();
+
+			if (!themeList.isEmpty()) {
+				currentTheme = themeList.remove(0);
+				defeatedMonsters.clear();
+				System.out.println("\nChanging to new theme: " + currentTheme);
+				initializeMonstersAndBosses();
+			} else {
+				showGameCompleteAlert();
+				return;
+			}
+
+			fight();
 		} else {
-			defeatedMonsters.add(defeatedEnemy);
+			if (defeatedEnemy instanceof Monster) {
+				defeatedMonsters.add((Monster) defeatedEnemy);
+			}
 			victoryAlert.setHeaderText("Defeated: " + defeatedEnemy.getName());
 			victoryAlert.setContentText(String.format("Experience gained: %d", totalXP));
 			gameStats.incrementMonstersDefeated();
+
+			if (player instanceof Player) {
+				((Player) player).addXP(totalXP);
+				gameStats.addXP(totalXP);
+				System.out.println("Player gained " + totalXP + " XP");
+			}
+
+			victoryAlert.showAndWait();
+			fight();
 		}
-
-		victoryAlert.showAndWait();
-
-		if (player instanceof Player) {
-			((Player) player).addXP(totalXP);
-			gameStats.addXP(totalXP); // เพิ่ม XP ลงในสถิติ
-			System.out.println("Player gained " + totalXP + " XP");
-		}
-
-		fight();
 	}
 
-	private int calculateBaseXP(Monster enemy) {
+	private int calculateBaseXP(Character enemy) {
 		int baseXP = (enemy.getMaxHp() / 10) + (enemy.getAtk() * 2) + (enemy.getDef() * 2) + (enemy.getSpd());
 
 		switch (gameDifficulty) {
@@ -654,14 +716,17 @@ public class Game {
 	}
 
 	private void showDefeatAlert() {
-		Alert defeatAlert = new Alert(Alert.AlertType.INFORMATION);
-		defeatAlert.setTitle("Defeat!");
-		defeatAlert.setHeaderText("You have been defeated!");
-		defeatAlert.setContentText("Better luck next time!");
-		defeatAlert.showAndWait().ifPresent(response -> {
-			showGameCompleteAlert();
-		});
-	}
+        Alert defeatAlert = new Alert(Alert.AlertType.INFORMATION);
+        defeatAlert.setTitle("Defeat!");
+        defeatAlert.setHeaderText("You have been defeated!");
+        defeatAlert.setContentText("Better luck next time!");
+        
+        defeatAlert.setOnShown(e -> {
+            Platform.runLater(this::showGameCompleteAlert);
+        });
+        
+        defeatAlert.show();
+    }
 
 	public List<Skill> getSkills() {
 		return player.getSkills();
@@ -689,11 +754,16 @@ public class Game {
 	}
 
 	private void resetEnemyStats() {
+		if (currentEnemy == null)
+			return;
+
 		if (isFightingBoss && currentEnemy instanceof BaseBoss) {
-			currentEnemy = new BaseBoss(currentEnemy.getName(), currentEnemy.getMaxHp(), currentEnemy.getAtk(),
-					currentEnemy.getDef(), currentEnemy.getSpd(), currentEnemy.getSkills(),
-					((BaseBoss) currentEnemy).getFieldEffect());
-		} else {
+			if (!bossList.isEmpty() && bossList.get(0).getName().equals(currentEnemy.getName())) {
+				currentEnemy = new BaseBoss(currentEnemy.getName(), currentEnemy.getMaxHp(), currentEnemy.getAtk(),
+						currentEnemy.getDef(), currentEnemy.getSpd(), currentEnemy.getSkills(),
+						((BaseBoss) currentEnemy).getFieldEffect());
+			}
+		} else if (currentEnemy instanceof Monster && !defeatedMonsters.contains((Monster) currentEnemy)) {
 			currentEnemy = new Monster(currentEnemy.getName(), currentEnemy.getMaxHp(), currentEnemy.getAtk(),
 					currentEnemy.getDef(), currentEnemy.getSpd(), currentEnemy.getSkills());
 		}
@@ -720,10 +790,10 @@ public class Game {
 
 			if (playerEffects.isEmpty()) {
 				playerStatusLabel.setText("Status Effects: None");
-				playerStatusLabel.setStyle("-fx-text-fill: #95a5a6;"); // สีเทาถ้าไม่มีสถานะ
+				playerStatusLabel.setStyle("-fx-text-fill: #22771a;");
 			} else {
 				playerStatusLabel.setText("Status Effects: " + String.join(", ", playerEffects));
-				playerStatusLabel.setStyle("-fx-text-fill: #e74c3c;"); // สีแดงถ้ามีสถานะ
+				playerStatusLabel.setStyle("-fx-text-fill: #ad1c0b;");
 			}
 		}
 
@@ -733,10 +803,10 @@ public class Game {
 
 		if (enemyEffects.isEmpty()) {
 			enemyStatusLabel.setText("Status Effects: None");
-			enemyStatusLabel.setStyle("-fx-text-fill: #95a5a6;"); // สีเทาถ้าไม่มีสถานะ
+			enemyStatusLabel.setStyle("-fx-text-fill: #22771a;");
 		} else {
 			enemyStatusLabel.setText("Status Effects: " + String.join(", ", enemyEffects));
-			enemyStatusLabel.setStyle("-fx-text-fill: #e74c3c;"); // สีแดงถ้ามีสถานะ
+			enemyStatusLabel.setStyle("-fx-text-fill: #ad1c0b;");
 		}
 
 		if (isFightingBoss) {
@@ -797,6 +867,8 @@ public class Game {
 			TranslateTransition move = new TranslateTransition(Duration.seconds(0.3), playerImage);
 			move.setToX(450 - 80);
 			move.setToY(30 - 150);
+
+			SoundManager.playPlayerAttackSound();
 
 			move.setOnFinished(ev -> {
 				TranslateTransition back = new TranslateTransition(Duration.seconds(1), playerImage);

@@ -32,7 +32,20 @@ public class SoundManager {
 		if (Sound != null) {
 			Sound.play();
 		}
+	}
 
+	public static void playEnemyAttackSound() {
+		AudioClip Sound = loadSound("enemyAttack.mp3");
+		if (Sound != null) {
+			Sound.play();
+		}
+	}
+
+	public static void playPlayerAttackSound() {
+		AudioClip Sound = loadSound("playerAttack.mp3");
+		if (Sound != null) {
+			Sound.play();
+		}
 	}
 
 }

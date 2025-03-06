@@ -1,19 +1,16 @@
 package items;
 
-public class Feather {
-    private String name;
-    private String description;
+import characters.Character;
 
+public abstract class Feather extends Item {
+    
     public Feather(String name, String description) {
-        this.name = name;
-        this.description = description;
+        super(name, description);
     }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
+    
+    @Override
+    public void use(Character target) {
+        // การใช้งาน feather พื้นฐาน
+        System.out.println("Using feather on " + target.getName());
     }
 }

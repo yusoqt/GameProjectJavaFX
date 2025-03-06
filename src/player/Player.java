@@ -10,8 +10,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import java.util.Optional;
-import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
 import effects.BaseDotEffect;
 
 public class Player extends Character {
@@ -35,11 +33,11 @@ public class Player extends Character {
     private static final int BASE_MP = 100;
     private static final double MP_GROWTH = 0.1;
     private static final int MAX_MP_BONUS = 50; // MP เพิ่มเติมสูงสุด
+    private List<Item> inventory = new ArrayList<>();
 
     public Player(String name) {
         super(name, 500, 70, 45, 80);
         
-        // Initialize base stats
         level = 1;
         currentXP = 0;
         xpToNextLevel = computeXPThreshold(level);
@@ -50,18 +48,15 @@ public class Player extends Character {
         baseSpd = 40;
         this.baseMP = BASE_MP;  // Initialize with constant
         
-        // Set growth rates
         hpGrowth = 0.12;
         atkGrowth = 0.10;
         defGrowth = 0.08;
         spdGrowth = 0.10;
         this.mpGrowth = MP_GROWTH;
         
-        // Initialize MP
         this.maxMp = BASE_MP;
         this.mp = BASE_MP;  // Start with full MP
         
-        // คงรายการสกิลเดิม
         this.skills = new ArrayList<>();
         this.skills.add(new BasicSlash());
         this.skills.add(new PowerStrike());
@@ -72,10 +67,9 @@ public class Player extends Character {
         
         feathers = new ArrayList<>();
         feathers.add(new FeatherOfBeginning());
-        recalcStats();  // Calculate all stats properly
+        recalcStats();  
     }
 
-    // Getter สำหรับ skills
     @Override
     public List<Skill> getSkills() {
         return this.skills;
@@ -93,12 +87,10 @@ public class Player extends Character {
         currentXP -= xpToNextLevel;
         xpToNextLevel = computeXPThreshold(level);
         
-        // คำนวณสเตตัสที่เพิ่มขึ้นตามเลเวล
         recalcStats();
         
         System.out.println("Level Up! Current Level: " + level);
         
-        // แสดงหน้าต่างให้เลือกอัพสเตตัส
         Platform.runLater(() -> showStatSelectionDialog());
     }
 
@@ -108,15 +100,13 @@ public class Player extends Character {
 
     @Override
     protected void recalcStats() {
-        // Calculate base stats first
+   
         maxHp = (int) (baseHP + (baseHP * (level - 1) * hpGrowth));
-        hp = maxHp;  // Reset HP to max after recalc
+        hp = maxHp;  
         
-        // Calculate MP with limit
         maxMp = Math.min(BASE_MP + (int)(BASE_MP * (level - 1) * mpGrowth), BASE_MP + MAX_MP_BONUS);
-        mp = Math.min(mp, maxMp);  // Limit current MP to new max
-        
-        // Calculate other stats
+        mp = Math.min(mp, maxMp);  
+
         atk = (int) (baseAtk + (baseAtk * (level - 1) * atkGrowth));
         def = (int) (baseDef + (baseDef * (level - 1) * defGrowth));
         spd = (int) (baseSpd + (baseSpd * (level - 1) * spdGrowth));
@@ -222,5 +212,20 @@ public class Player extends Character {
     @Override
     public List<BaseDotEffect> getActiveEffects() {
         return super.getActiveEffects();
+    }
+
+    public void addItem(Item item) {
+        inventory.add(item);
+    }
+
+    public List<Item> getInventory() {
+        return inventory;
+    }
+
+    public void useItem(Item item) {
+        // เนื่องจาก Feather เป็น subclass ของ Item แล้ว ไม่จำเป็นต้อง cast เป็น Feather อีก
+        item.use(this);
+        inventory.remove(item);
+        System.out.println("Used " + item.getName() + ": " + item.getDescription());
     }
 }
